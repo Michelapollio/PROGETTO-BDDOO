@@ -2,7 +2,6 @@
 
 -- DROP FUNCTION IF EXISTS public.get_photos_same_place(integer);
 
-CREATE OR REPLACE FUNCTION public.get_photos_same_place(
 	place_id_param integer)
     RETURNS TABLE(photo_id integer) 
     LANGUAGE 'plpgsql'
