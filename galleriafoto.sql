@@ -237,10 +237,15 @@ execute function s1.f2();
 create or replace function s1.add_data() returns trigger as
     $$
     BEGIN
-        insert into s1.album(nome, datacreazione, idowner, privacy)
-        values (new.nome, CURRENT_TIMESTAMP, new.idowner, new.privacy);
+        new.datacreazione = CURRENT_TIMESTAMP;
+        RETURN NEW;
     end;
     $$ language plpgsql;
+
+create trigger t4
+    before insert on s1.album
+    for each row
+    execute function s1.add_data();
 
 
 create or replace function s1.add_utentealbum() returns trigger as
@@ -252,7 +257,7 @@ create or replace function s1.add_utentealbum() returns trigger as
     end;
     $$ language plpgsql;
 
-create trigger t4
+create trigger t5
     after insert on s1.album
     for each row
     execute function s1.add_utentealbum();
@@ -261,4 +266,7 @@ insert into s1.utente (nome, cognome, email, password)
 values ('elisa', 'tiberio', 'elisatiberio@live.it', 'nene26'),
         ('michela', 'pollio', 'michelapollio19@icloud.com', 'balusie19');
 
+
+insert into s1.album(nome, idowner, privacy)
+VALUES ('Praia', 1, true);
 
