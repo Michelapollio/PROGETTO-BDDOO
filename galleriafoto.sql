@@ -1,7 +1,7 @@
 DROP SCHEMA IF EXISTS s1 CASCADE;
 CREATE SCHEMA s1;
 
-CREATE TYPE stato AS ENUM ('privato', 'pubblico', 'deleted');
+--CREATE TYPE stato AS ENUM ('privato', 'pubblico', 'deleted');
 
 CREATE TABLE s1.Utente
 (
@@ -82,7 +82,7 @@ CREATE TABLE s1.Album
 (
     IdAlbum       Serial,
     Nome          VARCHAR(50) NOT NULL,
-    DataCreazione DATE        NOT NULL,
+    DataCreazione DATE,
     IdOwner       INTEGER     NOT NULL,
     Privacy       BOOLEAN     NOT NULL,
     CONSTRAINT PK_Album PRIMARY KEY (IdAlbum),
@@ -135,9 +135,6 @@ create trigger t1
     on s1.utente
     for each row
 execute function f1();
-
-insert into s1.utente (nome, cognome, email, password)
-values ('michela', 'pollio', 'michelapollio@icloud.com', '12346');
 
 CREATE OR REPLACE FUNCTION s1.add_to_gallery() RETURNS trigger
 AS
@@ -236,3 +233,32 @@ create trigger t2
     on s1.foto
     for each row
 execute function s1.f2();
+
+create or replace function s1.add_data() returns trigger as
+    $$
+    BEGIN
+        insert into s1.album(nome, datacreazione, idowner, privacy)
+        values (new.nome, CURRENT_TIMESTAMP, new.idowner, new.privacy);
+    end;
+    $$ language plpgsql;
+
+
+create or replace function s1.add_utentealbum() returns trigger as
+    $$
+    BEGIN
+        insert into s1.albumutente(idalbum, idutente)
+        VALUES (NEW.idalbum, NEW.idowner);
+        return new;
+    end;
+    $$ language plpgsql;
+
+create trigger t4
+    after insert on s1.album
+    for each row
+    execute function s1.add_utentealbum();
+
+insert into s1.utente (nome, cognome, email, password)
+values ('elisa', 'tiberio', 'elisatiberio@live.it', 'nene26'),
+        ('michela', 'pollio', 'michelapollio19@icloud.com', 'balusie19');
+
+
