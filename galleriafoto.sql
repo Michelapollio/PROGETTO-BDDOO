@@ -397,7 +397,6 @@ VALUES (1, 'pubblico', 28),
  	(9, 'pubblico', 30),
  	(10, 'privato', 31);
 
-inse
 
 
 
